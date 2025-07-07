@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import * as naclUtil from 'tweetnacl-util';
 
 export async function uploadPublicKey(userId: string, publicKey: string) {
