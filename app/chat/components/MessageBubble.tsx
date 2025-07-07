@@ -4,12 +4,16 @@ import { View, Text, StyleSheet } from 'react-native';
 interface Props {
   message: string;
   isOwn: boolean;
+  timestamp: string;
 }
 
-export default function MessageBubble({ message, isOwn }: Props) {
+export default function MessageBubble({ message, isOwn, timestamp }: Props) {
   return (
     <View style={[styles.bubble, isOwn ? styles.own : styles.other]}>
       <Text style={styles.text}>{message}</Text>
+      <Text style={styles.time}>
+        {new Date(timestamp).toLocaleTimeString()}
+      </Text>
     </View>
   );
 }
@@ -31,5 +35,9 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+  },
+  time: {
+    fontSize: 12,
+    color: '#666',
   },
 });

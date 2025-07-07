@@ -9,6 +9,7 @@ export function encryptMessage(message: string, recipientPublicKey: Uint8Array, 
     recipientPublicKey,
     senderPrivateKey
   );
+  console.log('Message encrypted');
   return {
     ciphertext: naclUtil.encodeBase64(ciphertext),
     nonce: naclUtil.encodeBase64(nonce),
@@ -23,5 +24,6 @@ export function decryptMessage(ciphertextB64: string, nonceB64: string, senderPu
     recipientPrivateKey
   );
   if (!plaintext) return '';
+  console.log('Message decrypted');
   return naclUtil.encodeUTF8(plaintext);
 }

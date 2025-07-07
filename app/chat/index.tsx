@@ -27,7 +27,6 @@ export default function ChatScreen() {
       setPublicKey(publicKey);
       setPrivateKey(privateKey);
       setUserId(userId);
-      console.log('Generated keys');
       const fetched = await fetchMessagesForUser(userId);
       setMessages(fetched);
     })();
@@ -48,7 +47,6 @@ export default function ChatScreen() {
       created_at: new Date().toISOString(),
     };
     setMessages([...messages, newMsg]);
-    console.log('Encrypted');
   };
 
   return (
@@ -58,6 +56,7 @@ export default function ChatScreen() {
         renderItem={({ item }) => (
           <MessageBubble
             message={decryptMessage(item.ciphertext, item.nonce, publicKey!, privateKey!)}
+            timestamp={item.created_at}
             isOwn={item.sender_id === userId}
           />
         )}
