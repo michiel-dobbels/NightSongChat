@@ -21,6 +21,7 @@ export async function getOrCreateKeyPair(): Promise<KeyPairResult> {
   ]);
 
   if (pub && priv && uid) {
+    console.log('Key loaded');
     return {
       publicKey: naclUtil.decodeBase64(pub),
       privateKey: naclUtil.decodeBase64(priv),
@@ -36,5 +37,6 @@ export async function getOrCreateKeyPair(): Promise<KeyPairResult> {
     AsyncStorage.setItem(USER_ID_STORAGE, userId),
   ]);
   await uploadPublicKey(userId, naclUtil.encodeBase64(publicKey));
+  console.log('Key generated');
   return { publicKey, privateKey: secretKey, userId };
 }
