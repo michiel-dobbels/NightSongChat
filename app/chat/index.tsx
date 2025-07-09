@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import MessageInput from './components/MessageInput';
+import { useLocalSearchParams } from 'expo-router';
 import MessageBubble from './components/MessageBubble';
 import { getOrCreateKeyPair } from './lib/keygen';
 import { fetchMessagesForUser, sendEncryptedMessage, getPublicKeyForUser } from './lib/supabase';
@@ -20,6 +21,8 @@ export default function ChatScreen() {
   const [userId, setUserId] = useState<string>('');
   const [publicKey, setPublicKey] = useState<Uint8Array>();
   const [privateKey, setPrivateKey] = useState<Uint8Array>();
+  const { recipientId } = useLocalSearchParams<{ recipientId?: string }>();
+  const targetId = typeof recipientId === 'string' ? recipientId : '';
 
   useEffect(() => {
     (async () => {
@@ -36,7 +39,11 @@ export default function ChatScreen() {
     if (!publicKey || !privateKey) return;
     const recipientKey = await getPublicKeyForUser(recipientId);
     if (!recipientKey) return;
-    const { ciphertext, nonce } = encryptMessage(text, recipientKey, privateKey);
+    const { ciphertext, nonce } = encryptMessage({
+      plaintext: text,
+      senderSecretKey: privateKey,
+      recipientPublicKey: recipientKey,
+    });
     await sendEncryptedMessage(userId, recipientId, ciphertext, nonce);
     const newMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -62,7 +69,7 @@ export default function ChatScreen() {
         )}
         keyExtractor={(item) => item.id}
       />
-      <MessageInput onSend={onSend} />
+      <MessageInput onSend={onSend} recipientId={targetId} />
     </View>
   );
 }
@@ -71,5 +78,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingBottom: 80,
   },
 });

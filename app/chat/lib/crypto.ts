@@ -1,29 +1,45 @@
 import * as nacl from 'tweetnacl';
 import * as naclUtil from 'tweetnacl-util';
 
-export function encryptMessage(message: string, recipientPublicKey: Uint8Array, senderPrivateKey: Uint8Array) {
+export interface EncryptMessageInput {
+  plaintext: string;
+  senderSecretKey: Uint8Array;
+  recipientPublicKey: Uint8Array;
+}
+
+export interface EncryptedPayload {
+  ciphertext: string;
+  nonce: string;
+}
+
+export function encryptMessage({
+  plaintext,
+  senderSecretKey,
+  recipientPublicKey,
+}: EncryptMessageInput): EncryptedPayload {
   const nonce = nacl.randomBytes(24);
-  const ciphertext = nacl.box(
-    naclUtil.decodeUTF8(message),
-    nonce,
-    recipientPublicKey,
-    senderPrivateKey
-  );
-  console.log('Message encrypted');
+  const messageBytes = naclUtil.decodeUTF8(plaintext);
+  const encrypted = nacl.box(messageBytes, nonce, recipientPublicKey, senderSecretKey);
   return {
-    ciphertext: naclUtil.encodeBase64(ciphertext),
+    ciphertext: naclUtil.encodeBase64(encrypted),
     nonce: naclUtil.encodeBase64(nonce),
   };
 }
 
-export function decryptMessage(ciphertextB64: string, nonceB64: string, senderPublicKey: Uint8Array, recipientPrivateKey: Uint8Array) {
+export function decryptMessage(
+  ciphertextB64: string,
+  nonceB64: string,
+  senderPublicKey: Uint8Array,
+  recipientPrivateKey: Uint8Array
+): string {
   const plaintext = nacl.box.open(
     naclUtil.decodeBase64(ciphertextB64),
     naclUtil.decodeBase64(nonceB64),
     senderPublicKey,
     recipientPrivateKey
   );
-  if (!plaintext) return '';
-  console.log('Message decrypted');
+  if (!plaintext) {
+    return '';
+  }
   return naclUtil.encodeUTF8(plaintext);
 }
